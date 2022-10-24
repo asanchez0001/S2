@@ -25,18 +25,30 @@ def video_trim(input_file, start='00:00:00', dur='00:10:30'):
     return os.path.abspath('output.mp4')
 
 
-def yuv_histogram(input_file='output.mp4'):
+def yuv_histogram(input_file='/Users/alvaro/BBB_1080p_60fps.mp4'):
     """
     Display the YUV histogram from the video trimmed in exercise 1 and create a new video with both images at the same
     time.
     :param input_file: str
         Absolut path to the input file
     """
-    # path = video_trim(input_file, start, dur)
-    os.system('ffplay -i {0} -vf "split=2[a][b],[b]histogram,format=yuva444p[hh],[a][hh]overlay"'.format(input_file))
+    path = video_trim(input_file, '00:09:00', '00:00:15')
+
+    try:
+        os.remove('output_hist.mp4')
+        print('Removing existing output file')
+    except FileNotFoundError:
+        print('Creating output file')
+
+    os.system(
+        'ffmpeg -i {0} -vf "split=2[a][b],[b]histogram,format=yuva444p[hh],[a][hh]overlay" output_hist.mp4'.format(
+            path))
+
+    # OTHER OPTIONS
+    # os.system('ffplay -i {0} -vf "split=2[a][b],[b]histogram,format=yuva444p[hh],[a][hh]overlay"'.format(input_file))
 
 
-def resize(input_file, sizes=None, dur='00:00:10'):
+def resize(input_file, sizes=None, dur='00:00:15'):
     """
     Resize the BBB video into 4 different video outputs: 720p, 480p, 360x240, 160x120.
     :param input_file: str
@@ -48,6 +60,15 @@ def resize(input_file, sizes=None, dur='00:00:10'):
     """
     if sizes is None:
         sizes = np.array(['720p', '480p', '360x240', '160x120'])
+
+    try:
+        os.remove('output_160x120.mp4')
+        os.remove('output_360x240.mp4')
+        os.remove('output_480p.mp4')
+        os.remove('output_720p.mp4')
+        print('Removing existing output files')
+    except FileNotFoundError:
+        print('Creating output files')
 
     path = video_trim(input_file, '00:00:45', dur)
     for size in sizes:
@@ -68,6 +89,13 @@ def mono_stereo(input_file, dur='00:00:20', to_mono=True, to_stereo=False):
     :param to_stereo: bool
     """
     path = video_trim(input_file, '00:00:45', dur)
+
+    try:
+        os.remove('output_mono.mp4')
+        os.remove('output_stereo.mp4')
+        print('Removing existing output files')
+    except FileNotFoundError:
+        print('Creating output files')
 
     # Change to_mono or to_stereo variable depending on the input video
     if to_mono:
